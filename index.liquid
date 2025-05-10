@@ -1,5 +1,68 @@
 ---
 ---
+<style>
+  body {
+    font-family: sans-serif;
+    background: #f5f4f0;
+    color: #222;
+    padding: 2rem;
+    max-width: 800px;
+    margin: auto;
+  }
+  nav {
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+  nav a {
+    margin-right: 1.5rem;
+    text-decoration: none;
+    color: #0044cc;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+  textarea {
+    width: 100%;
+    height: 220px;
+    font-size: 1rem;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+  }
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    background: #222;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #result {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-left: 4px solid #444;
+    background: #ecebe4;
+    display: none;
+  }
+  .ai {
+    border-color: #b30000;
+    background: #fcecec;
+  }
+  .human {
+    border-color: #008000;
+    background: #e4fce4;
+  }
+  footer {
+    margin-top: 3rem;
+    font-size: 0.85rem;
+    color: #666;
+  }
+</style>
+
 {% include "nav.html" %}
 
 <h1>AI Lyrics Checker</h1>
@@ -22,6 +85,7 @@ function analyzeLyrics() {
     return;
   }
   resultBox.style.display = 'block';
+  resultBox.className = 'human';
   resultBox.textContent = 'Pretend analysis: this is likely human-written.';
 }
 </script>
