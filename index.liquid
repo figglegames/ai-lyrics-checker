@@ -1,0 +1,28 @@
+---
+layout: none
+---
+{% include "nav.html" %}
+
+<h1>AI Lyrics Checker</h1>
+<p>Paste your lyrics below. We’ll analyze the structure, repetition, and phrasing to detect signs of AI generation.</p>
+
+<textarea id="lyrics" placeholder="Paste your lyrics here..."></textarea>
+<button onclick="analyzeLyrics()">Check Lyrics</button>
+<div id="result"></div>
+
+<footer>
+  <p><strong>Disclaimer:</strong> This tool provides an estimate based on known AI patterns and does not guarantee accuracy. No lyrics are stored or shared. For entertainment and educational purposes only.</p>
+</footer>
+
+<script>
+function analyzeLyrics() {
+  const text = document.getElementById('lyrics').value.trim();
+  const resultBox = document.getElementById('result');
+  if (!text) {
+    resultBox.style.display = 'none';
+    return;
+  }
+  resultBox.style.display = 'block';
+  resultBox.textContent = 'Pretend analysis: this is likely human-written.';
+}
+</script>
