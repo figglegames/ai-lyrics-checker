@@ -99,7 +99,10 @@ title: AI Lyrics Checker
   <p>Paste your lyrics below. We’ll analyze the structure, repetition, and phrasing to detect signs of AI generation.</p>
 
   <textarea id="lyrics" placeholder="Paste your lyrics here..."></textarea>
-  <button onclick="analyzeLyrics()">Check Lyrics</button>
+  <div style="margin-top: 1rem;">
+    <button onclick="analyzeLyrics()">Check for AI Lyrics</button>
+    <button onclick="resetForm()" style="margin-left: 1rem; background: #888;">Clear</button>
+  </div>
   <div id="result"></div>
 
   <footer>
@@ -196,6 +199,13 @@ title: AI Lyrics Checker
         <div class='confidence-label'>Confidence: ${confidence}%</div>
       `;
       resultBox.style.display = 'block';
+    }
+    function resetForm() {
+      document.getElementById('lyrics').value = '';
+      const resultBox = document.getElementById('result');
+      resultBox.innerHTML = '';
+      resultBox.className = '';
+      resultBox.style.display = 'none';
     }
   </script>
 </body>
