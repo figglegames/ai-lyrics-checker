@@ -123,9 +123,15 @@ title: AI Lyrics Checker
         return;
       }
 
-      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       const totalLines = lines.length;
       let score = 0;
+
+      // NEW: Structure label logic
+      const sections = [...text.matchAll(/\[(verse|chorus|bridge|hook|intro|outro)\]/gi)].map(m => m[1].toLowerCase());
+      const uniqueSections = new Set(sections);
+      if (uniqueSections.size >= 3) humanOffset++;
+
 
       // Human-style language patterns
       const contractions = text.match(/\b(?:don't|can't|won't|i'm|you're|it's|ain't)\b/gi) || [];
@@ -134,6 +140,9 @@ title: AI Lyrics Checker
       if (conversationalMatches.length >= 2) humanOffset++;
       if (contractions.length >= 2) humanOffset++;
       humanOffset = Math.min(humanOffset, 2);
+      const speechyMatches = text.match(/\b(wanna|gonna|lemme|gotta|ain’t|you know|i mean|kinda|sorta|can't help but)\b/gi) || [];
+      if (speechyMatches.length >= 2) humanOffset++;
+
 
       // AI-style repetition and structure
       const repeatedMap = {};
