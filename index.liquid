@@ -153,11 +153,11 @@ title: AI Lyrics Checker
 
       const lengths = lines.map(l => l.split(' ').length);
       const avg = lengths.reduce((a, b) => a + b, 0) / lengths.length;
-      if (lengths.filter(n => Math.abs(n - avg) <= 1).length / lengths.length > 0.9) score++;
+      if (lengths.filter(n => Math.abs(n - avg) <= 1).length / lengths.length > 0.85) score++;
 
       const aiPhrases = ['fading light','broken heart','endless night','guardian soul','call my name','dream away','shattered','rise again','front porch swing','amber hue','dust kicks up','soul gets fed','home collide','memory flame','wild winds sing'];
       const phraseHits = aiPhrases.filter(p => text.toLowerCase().includes(p)).length;
-      if (phraseHits >= 2) score++;
+      if (phraseHits >= 2) score += 2;
 
       const lastWords = lines.map(getLastWord).filter(Boolean);
       const rhymeMap = {};
@@ -165,12 +165,12 @@ title: AI Lyrics Checker
         const key = word.slice(-3);
         rhymeMap[key] = (rhymeMap[key] || 0) + 1;
       });
-      if (Object.values(rhymeMap).filter(count => count >= 3).length >= 1) score++;
+      if (Object.values(rhymeMap).filter(count => count >= 3).length >= 1) score += 2;
 
       const strongEnds = lines.filter(l => /[.!?]$/.test(l)).length;
       if (strongEnds / totalLines > 0.7) score++;
 
-      score = Math.max(0, score - humanOffset);
+      score = Math.max(0, score - Math.min(humanOffset, 2));
 
       let verdict = 'Likely human-written';
       let className = 'human';
