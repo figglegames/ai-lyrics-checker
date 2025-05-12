@@ -1,3 +1,4 @@
+
 ---
 title: AI Lyrics Checker
 ---
@@ -123,32 +124,25 @@ title: AI Lyrics Checker
         return;
       }
 
-     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       const totalLines = lines.length;
       let score = 0;
 
-      // NEW: Structure label logic
+      const contractions = text.match(/\b(?:don't|can't|won't|i'm|you're|it's|ain't)\b/gi) || [];
+      const conversationalMatches = text.match(/(i swear|you know|i think|i miss you|it hurts|i can't explain)/gi) || [];
+      const speechyMatches = text.match(/\b(wanna|gonna|lemme|gotta|ain’t|you know|i mean|kinda|sorta|can't help but)\b/gi) || [];
+
+      let humanOffset = 0;
+      if (conversationalMatches.length >= 2) humanOffset++;
+      if (contractions.length >= 2) humanOffset++;
+      if (speechyMatches.length >= 2) humanOffset++;
+
       const sections = [...text.matchAll(/\[(verse|chorus|bridge|hook|intro|outro)\]/gi)].map(m => m[1].toLowerCase());
       const uniqueSections = new Set(sections);
       if (uniqueSections.size >= 3) humanOffset++;
 
-
-      // Human-style language patterns
-      const contractions = text.match(/\b(?:don't|can't|won't|i'm|you're|it's|ain't)\b/gi) || [];
-      const conversationalMatches = text.match(/(i swear|you know|i think|i miss you|it hurts|i can't explain)/gi) || [];
-      let humanOffset = 0;
-      if (conversationalMatches.length >= 2) humanOffset++;
-      if (contractions.length >= 2) humanOffset++;
-      humanOffset = Math.min(humanOffset, 2);
-      const speechyMatches = text.match(/\b(wanna|gonna|lemme|gotta|ain’t|you know|i mean|kinda|sorta|can't help but)\b/gi) || [];
-      if (speechyMatches.length >= 2) humanOffset++;
-
-
-      // AI-style repetition and structure
       const repeatedMap = {};
-      lines.forEach((line) => {
-        repeatedMap[line] = (repeatedMap[line] || 0) + 1;
-      });
+      lines.forEach((line) => repeatedMap[line] = (repeatedMap[line] || 0) + 1);
       const repeated = Object.values(repeatedMap).filter(count => count > 1);
       if (repeated.length > 0 && repeated.reduce((a, b) => a + b, 0) < totalLines * 0.4) score++;
 
@@ -161,31 +155,26 @@ title: AI Lyrics Checker
       const avg = lengths.reduce((a, b) => a + b, 0) / lengths.length;
       if (lengths.filter(n => Math.abs(n - avg) <= 1).length / lengths.length > 0.9) score++;
 
-      // Expanded AI phrase list
       const aiPhrases = ['fading light','broken heart','endless night','guardian soul','call my name','dream away','shattered','rise again','front porch swing','amber hue','dust kicks up','soul gets fed','home collide','memory flame','wild winds sing'];
       const phraseHits = aiPhrases.filter(p => text.toLowerCase().includes(p)).length;
       if (phraseHits >= 2) score++;
 
-      // Improved rhyme detection (using full words)
       const lastWords = lines.map(getLastWord).filter(Boolean);
       const rhymeMap = {};
       lastWords.forEach(word => {
-        const key = word.slice(-3); // better than 2 chars
+        const key = word.slice(-3);
         rhymeMap[key] = (rhymeMap[key] || 0) + 1;
       });
       if (Object.values(rhymeMap).filter(count => count >= 3).length >= 1) score++;
 
-      // Enjambment detection
       const strongEnds = lines.filter(l => /[.!?]$/.test(l)).length;
       if (strongEnds / totalLines > 0.7) score++;
 
-      // Final score adjustment
       score = Math.max(0, score - humanOffset);
 
       let verdict = 'Likely human-written';
       let className = 'human';
       let confidence = 70;
-
       if (score === 3) {
         verdict = 'Borderline – AI-like structure detected';
         className = 'ai';
@@ -209,6 +198,7 @@ title: AI Lyrics Checker
       `;
       resultBox.style.display = 'block';
     }
+
     function resetForm() {
       document.getElementById('lyrics').value = '';
       const resultBox = document.getElementById('result');
