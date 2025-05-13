@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Configuration, OpenAIApi } = require('openai');
+const fs = require('fs');
 
 const app = express();
 
@@ -64,6 +65,18 @@ app.post('/checkLyrics', async (req, res) => {
     });
 
     const reply = completion.data.choices[0].message.content.trim();
+    // Extract key values for logging
+    const logEntry = {
+        timestamp: new Date().toISOString(),
+        snippet: lyrics.slice(0, 100).replace(/\n/g, ' '),
+        reply: reply
+    };
+    
+    // Append to log file
+    fs.appendFile('lyrics-log.jsonl', JSON.stringify(logEntry) + '\n', err => {
+        if (err) console.error('Logging failed:', err);
+    });
+  
     console.log("GPT Reply:", reply);
     res.setHeader('Content-Type', 'application/json');
     res.send(reply);
