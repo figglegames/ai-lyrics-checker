@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const handler = require('./netlify/functions/checkLyrics.js');
 
 const app = express();
+app.use(require('cors')());
 app.use(bodyParser.json());
 
 app.post('/checkLyrics', async (req, res) => {
