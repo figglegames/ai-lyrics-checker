@@ -126,7 +126,7 @@ title: AI Lyrics Checker
         return;
       }
 
-      resultBox.innerHTML = 'Analyzing with GPT...';
+      resultBox.innerHTML = 'Analyzing...';
       resultBox.className = '';
       resultBox.style.display = 'block';
 
@@ -143,7 +143,7 @@ title: AI Lyrics Checker
         const data = await response.json();
         const conf = parseFloat(data.confidence) || 0;
 
-        let verdictLabel = 'Very likely AI-generated';
+        let verdictLabel = 'Possibly AI-generated';
         let className = 'ai';
 
         if (phraseHits >= 2 && conf < 80) {
@@ -155,13 +155,10 @@ title: AI Lyrics Checker
         } else if (conf >= 50) {
           verdictLabel = 'Likely human';
           className = 'human';
-        } else if (conf >= 25) {
-          verdictLabel = 'Possibly AI-generated';
-          className = 'ai';
         }
 
         const explanation = className === 'ai'
-          ? 'Patterns suggest AI authorship.'
+          ? 'Common AI patterns found.'
           : 'Patterns suggest human authorship.';
 
         resultBox.className = 'verdict ' + className;
@@ -172,7 +169,7 @@ title: AI Lyrics Checker
           <div class='confidence-label'>Confidence: ${conf}%</div>
         `;
       } catch (err) {
-        resultBox.innerHTML = 'Error reaching GPT endpoint.';
+        resultBox.innerHTML = 'Error reaching analysis server.';
         resultBox.className = 'verdict ai';
       }
     }
