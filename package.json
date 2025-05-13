@@ -1,6 +1,7 @@
 {
     "name": "ai-lyrics-checker-backend",
     "version": "1.0.0",
+    "description": "Fix CORS deploy issue",
     "main": "server.js",
     "type": "commonjs",
     "dependencies": {
