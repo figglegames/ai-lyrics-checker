@@ -96,7 +96,7 @@ title: AI Lyrics Checker
   {% include "nav.html" %}
 
   <h1>AI Lyrics Checker</h1>
-  <p>Paste your lyrics below. We’ll analyze them using GPT to detect signs of human or AI authorship.</p>
+  <p>Paste your lyrics below. We’ll analyze them using GPT and our own logic to detect signs of human or AI authorship.</p>
 
   <textarea id="lyrics" placeholder="Paste your lyrics here..."></textarea>
   <div style="margin-top: 1rem;">
@@ -110,71 +110,68 @@ title: AI Lyrics Checker
   </footer>
 
   <script>
-  function resetForm() {
-    document.getElementById('lyrics').value = '';
-    const resultBox = document.getElementById('result');
-    resultBox.innerHTML = '';
-    resultBox.className = '';
-    resultBox.style.display = 'none';
-  }
-
-  async function analyzeLyrics() {
-    const text = document.getElementById('lyrics').value.trim();
-    const resultBox = document.getElementById('result');
-    if (!text) {
+    function resetForm() {
+      document.getElementById('lyrics').value = '';
+      const resultBox = document.getElementById('result');
+      resultBox.innerHTML = '';
+      resultBox.className = '';
       resultBox.style.display = 'none';
-      return;
     }
 
-    resultBox.innerHTML = 'Analyzing with GPT...';
-    resultBox.className = '';
-    resultBox.style.display = 'block';
-
-    try {
-      const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lyrics: text }),
-      });
-
-      const data = await response.json();
-      const conf = parseFloat(data.confidence) || 0;
-      const verdictRaw = data.verdict?.toLowerCase() || '';
-      const explanationRaw = data.explanation || '';
-      let className = 'ai';
-      let verdictLabel = 'Very likely AI-generated';
-
-      if (conf >= 85) {
-        verdictLabel = 'Human-written';
-        className = 'human';
-      } else if (conf >= 50) {
-        verdictLabel = 'Likely human';
-        className = 'human';
-      } else if (conf >= 25) {
-        verdictLabel = 'Possibly AI-generated';
-        className = 'ai';
+    async function analyzeLyrics() {
+      const text = document.getElementById('lyrics').value.trim();
+      const resultBox = document.getElementById('result');
+      if (!text) {
+        resultBox.style.display = 'none';
+        return;
       }
 
-      // Fix: Override if GPT contradicts itself
-      if (verdictRaw.includes('very likely ai') && conf < 5) {
-        verdictLabel = 'Very likely AI-generated';
+      resultBox.innerHTML = 'Analyzing with GPT...';
+      resultBox.className = '';
+      resultBox.style.display = 'block';
+
+      const aiPhrases = ['dust kicks up','amber hue','soul gets fed','wild winds sing','front porch swing','memory flame','home collide','shimmering veil','aching sky','whispers fade','call my name','endless night'];
+      const phraseHits = aiPhrases.filter(p => text.toLowerCase().includes(p)).length;
+
+      try {
+        const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lyrics: text }),
+        });
+
+        const data = await response.json();
+        const conf = parseFloat(data.confidence) || 0;
+
+        let verdictLabel = 'Very likely AI-generated';
+        let className = 'ai';
+
+        if (phraseHits >= 3 && conf < 80) {
+          verdictLabel = '⚠️ Overruled: Very likely AI-generated';
+          className = 'ai';
+        } else if (conf >= 85) {
+          verdictLabel = 'Human-written';
+          className = 'human';
+        } else if (conf >= 50) {
+          verdictLabel = 'Likely human';
+          className = 'human';
+        } else if (conf >= 25) {
+          verdictLabel = 'Possibly AI-generated';
+          className = 'ai';
+        }
+
+        resultBox.className = 'verdict ' + className;
+        resultBox.innerHTML = `
+          ${verdictLabel}
+          <p class='subline'>${data.explanation || 'Analysis complete.'}</p>
+          <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${conf}%;'></div></div>
+          <div class='confidence-label'>Confidence: ${conf}%</div>
+        `;
+      } catch (err) {
+        resultBox.innerHTML = 'Error reaching GPT endpoint.';
+        resultBox.className = 'verdict ai';
       }
-
-      // Trim explanation to first 1–2 sentences
-      const trimmedExplanation = explanationRaw.split('. ').slice(0, 2).join('. ') + '.';
-
-      resultBox.className = 'verdict ' + className;
-      resultBox.innerHTML = `
-        ${verdictLabel}
-        <p class='subline'>${trimmedExplanation || 'Analysis complete.'}</p>
-        <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${conf}%;'></div></div>
-        <div class='confidence-label'>Confidence: ${conf}%</div>
-      `;
-    } catch (err) {
-      resultBox.innerHTML = 'Error reaching GPT endpoint.';
-      resultBox.className = 'verdict ai';
     }
-  }
-</script>
+  </script>
 </body>
 </html>
