@@ -27,10 +27,10 @@ B) Likely human-written but unpublished
 C) Possibly AI-generated
 D) Very likely AI-generated
 
-Respond in this JSON format:
+Respond strictly in this JSON format:
 {
   "verdict": "...",
-  "confidence": ...,
+  "confidence": (a number between 70 and 100),
   "explanation": "..."
 }
 
@@ -60,4 +60,3 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Lyrics checker running on port ${PORT}`);
 });
-// force redeploy
