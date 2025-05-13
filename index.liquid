@@ -110,68 +110,71 @@ title: AI Lyrics Checker
   </footer>
 
   <script>
-    function resetForm() {
-      document.getElementById('lyrics').value = '';
-      const resultBox = document.getElementById('result');
-      resultBox.innerHTML = '';
-      resultBox.className = '';
+  function resetForm() {
+    document.getElementById('lyrics').value = '';
+    const resultBox = document.getElementById('result');
+    resultBox.innerHTML = '';
+    resultBox.className = '';
+    resultBox.style.display = 'none';
+  }
+
+  async function analyzeLyrics() {
+    const text = document.getElementById('lyrics').value.trim();
+    const resultBox = document.getElementById('result');
+    if (!text) {
       resultBox.style.display = 'none';
+      return;
     }
 
-    async function analyzeLyrics() {
-      const text = document.getElementById('lyrics').value.trim();
-      const resultBox = document.getElementById('result');
-      if (!text) {
-        resultBox.style.display = 'none';
-        return;
+    resultBox.innerHTML = 'Analyzing with GPT...';
+    resultBox.className = '';
+    resultBox.style.display = 'block';
+
+    try {
+      const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lyrics: text }),
+      });
+
+      const data = await response.json();
+      const conf = parseFloat(data.confidence) || 0;
+      const verdictRaw = data.verdict?.toLowerCase() || '';
+      const explanationRaw = data.explanation || '';
+      let className = 'ai';
+      let verdictLabel = 'Very likely AI-generated';
+
+      if (conf >= 85) {
+        verdictLabel = 'Human-written';
+        className = 'human';
+      } else if (conf >= 50) {
+        verdictLabel = 'Likely human';
+        className = 'human';
+      } else if (conf >= 25) {
+        verdictLabel = 'Possibly AI-generated';
+        className = 'ai';
       }
 
-      resultBox.innerHTML = 'Analyzing with GPT...';
-      resultBox.className = '';
-      resultBox.style.display = 'block';
-
-      try {
-        const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lyrics: text }),
-        });
-
-        const data = await response.json();
-        const conf = parseFloat(data.confidence) || 0;
-
-        let verdictLabel = 'Very likely AI-generated';
-        let className = 'ai';
-
-        if (conf >= 90) {
-          verdictLabel = 'Human-written';
-          className = 'human';
-        } else if (conf >= 70) {
-          verdictLabel = 'Likely human-written';
-          className = 'human';
-        } else if (conf >= 50) {
-          verdictLabel = 'Possibly human-written';
-          className = 'human';
-        } else if (conf >= 30) {
-          verdictLabel = 'Possibly AI-generated';
-          className = 'ai';
-        } else {
-          verdictLabel = 'Very likely AI-generated';
-          className = 'ai';
-        }
-
-        resultBox.className = 'verdict ' + className;
-        resultBox.innerHTML = `
-          ${verdictLabel}
-          <p class='subline'>${data.explanation || 'Analysis complete.'}</p>
-          <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${conf}%;'></div></div>
-          <div class='confidence-label'>Confidence: ${conf}%</div>
-        `;
-      } catch (err) {
-        resultBox.innerHTML = 'Error reaching GPT endpoint.';
-        resultBox.className = 'verdict ai';
+      // Fix: Override if GPT contradicts itself
+      if (verdictRaw.includes('very likely ai') && conf < 5) {
+        verdictLabel = 'Very likely AI-generated';
       }
+
+      // Trim explanation to first 1–2 sentences
+      const trimmedExplanation = explanationRaw.split('. ').slice(0, 2).join('. ') + '.';
+
+      resultBox.className = 'verdict ' + className;
+      resultBox.innerHTML = `
+        ${verdictLabel}
+        <p class='subline'>${trimmedExplanation || 'Analysis complete.'}</p>
+        <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${conf}%;'></div></div>
+        <div class='confidence-label'>Confidence: ${conf}%</div>
+      `;
+    } catch (err) {
+      resultBox.innerHTML = 'Error reaching GPT endpoint.';
+      resultBox.className = 'verdict ai';
     }
-  </script>
+  }
+</script>
 </body>
 </html>
