@@ -51,6 +51,7 @@ Lyrics:
     res.setHeader('Content-Type', 'application/json');
     res.send(reply);
   } catch (err) {
+    console.error('GPT ERROR:', err);
     res.status(500).json({ error: 'Error analyzing lyrics', details: err.message });
   }
 });
