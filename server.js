@@ -73,6 +73,13 @@ app.post('/checkLyrics', async (req, res) => {
         parsed = { verdict: "Error", confidence: 0, explanation: "Failed to parse reply." };
     }
 
+    let parsed;
+    try {
+        parsed = JSON.parse(reply);
+    } catch (e) {
+        parsed = { verdict: "Error", confidence: 0, explanation: "Failed to parse reply." };
+    }
+
     const logEntry = {
         timestamp: new Date().toISOString(),
         snippet: lyrics.slice(0, 100).replace(/\n/g, ' '),
@@ -80,6 +87,7 @@ app.post('/checkLyrics', async (req, res) => {
         confidence: parsed.confidence,
         explanation: parsed.explanation
     };
+
     
     // Append to log file
     fs.appendFile('lyrics-log.jsonl', JSON.stringify(logEntry) + '\n', err => {
