@@ -63,6 +63,7 @@ title: AI Lyrics Checker
       font-weight: normal;
       margin-top: 0.4rem;
     }
+    /*
     .confidence-bar {
       margin-top: 0.8rem;
       background: #ddd;
@@ -85,6 +86,7 @@ title: AI Lyrics Checker
       text-align: right;
       color: #555;
     }
+    */
     footer {
       margin-top: 3rem;
       font-size: 0.85rem;
@@ -165,9 +167,8 @@ title: AI Lyrics Checker
         resultBox.innerHTML = `
           ${verdictLabel}
           <p class='subline'>${explanation}</p>
-          <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${conf}%;'></div></div>
-          <div class='confidence-label'>Confidence: ${conf}%</div>
         `;
+
       } catch (err) {
         resultBox.innerHTML = 'Error reaching analysis server.';
         resultBox.className = 'verdict ai';
