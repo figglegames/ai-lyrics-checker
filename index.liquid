@@ -146,7 +146,7 @@ title: AI Lyrics Checker
         let verdictLabel = 'Very likely AI-generated';
         let className = 'ai';
 
-        if (phraseHits >= 3 && conf < 80) {
+        if (phraseHits >= 2 && conf < 80) {
           verdictLabel = '⚠️ Overruled: Very likely AI-generated';
           className = 'ai';
         } else if (conf >= 85) {
