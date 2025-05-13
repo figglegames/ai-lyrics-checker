@@ -66,10 +66,19 @@ app.post('/checkLyrics', async (req, res) => {
 
     const reply = completion.data.choices[0].message.content.trim();
     // Extract key values for logging
+    let parsed;
+    try {
+        parsed = JSON.parse(reply);
+    } catch (e) {
+        parsed = { verdict: "Error", confidence: 0, explanation: "Failed to parse reply." };
+    }
+
     const logEntry = {
         timestamp: new Date().toISOString(),
         snippet: lyrics.slice(0, 100).replace(/\n/g, ' '),
-        reply: reply
+        verdict: parsed.verdict,
+        confidence: parsed.confidence,
+        explanation: parsed.explanation
     };
     
     // Append to log file
