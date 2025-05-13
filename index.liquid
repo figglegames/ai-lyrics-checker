@@ -121,59 +121,78 @@ title: AI Lyrics Checker
     }
 
     async function analyzeLyrics() {
-      const text = document.getElementById('lyrics').value.trim();
-      const resultBox = document.getElementById('result');
-      if (!text) {
-        resultBox.style.display = 'none';
-        return;
-      }
+  const text = document.getElementById('lyrics').value.trim();
+  const resultBox = document.getElementById('result');
+  if (!text) {
+    resultBox.style.display = 'none';
+    return;
+  }
 
-      resultBox.innerHTML = 'Analyzing...';
-      resultBox.className = '';
-      resultBox.style.display = 'block';
+  resultBox.innerHTML = 'Analyzing...';
+  resultBox.className = '';
+  resultBox.style.display = 'block';
 
-      const aiPhrases = ['dust kicks up','amber hue','soul gets fed','wild winds sing','front porch swing','memory flame','home collide','shimmering veil','aching sky','whispers fade','call my name','endless night'];
-      const phraseHits = aiPhrases.filter(p => text.toLowerCase().includes(p)).length;
+  const aiPhrases = [
+    'dust kicks up', 'amber hue', 'soul gets fed', 'wild winds sing',
+    'front porch swing', 'memory flame', 'home collide', 'shimmering veil',
+    'aching sky', 'whispers fade', 'call my name', 'endless night'
+  ];
 
-      try {
-        const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lyrics: text }),
-        });
+  const knownHumanTitles = [
+    "imagine", "don't go breaking my heart", "we are the world", "let it be",
+    "bohemian rhapsody", "yesterday", "hallelujah", "hey jude", "purple rain"
+  ];
 
-        const data = await response.json();
-        const conf = parseFloat(data.confidence) || 0;
+  const textLower = text.toLowerCase();
+  const phraseHits = aiPhrases.filter(p => textLower.includes(p)).length;
+  const isKnownTitle = knownHumanTitles.some(title => textLower.includes(title));
 
-        let verdictLabel = 'Possibly AI-generated';
-        let className = 'ai';
+  try {
+    const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lyrics: text }),
+    });
 
-        if (phraseHits >= 2 && conf < 80) {
-          verdictLabel = 'Very likely AI-generated';
-          className = 'ai';
-        } else if (conf >= 85) {
-          verdictLabel = 'Human-written';
-          className = 'human';
-        } else if (conf >= 50) {
-          verdictLabel = 'Likely human';
-          className = 'human';
-        }
+    const data = await response.json();
+    const conf = parseFloat(data.confidence) || 0;
 
-        const explanation = className === 'ai'
-          ? 'Common AI patterns found.'
-          : 'Patterns suggest human authorship.';
+    let verdictLabel = '';
+    let className = '';
+    let explanation = '';
 
-        resultBox.className = 'verdict ' + className;
-        resultBox.innerHTML = `
-          ${verdictLabel}
-          <p class='subline'>${explanation}</p>
-        `;
-
-      } catch (err) {
-        resultBox.innerHTML = 'Error reaching analysis server.';
-        resultBox.className = 'verdict ai';
-      }
+    if (isKnownTitle) {
+      verdictLabel = "Human-written";
+      className = "human";
+      explanation = "Published lyrics recognized.";
+    } else if (conf >= 85) {
+      verdictLabel = "Human-written";
+      className = "human";
+      explanation = "Patterns suggest human authorship.";
+    } else if (conf >= 50) {
+      verdictLabel = "Possibly human";
+      className = "human";
+      explanation = "Unclear, but leans human.";
+    } else if (phraseHits >= 3) {
+      verdictLabel = "Very likely AI-generated";
+      className = "ai";
+      explanation = "Multiple AI-style phrases detected.";
+    } else {
+      verdictLabel = "Possibly AI-generated";
+      className = "ai";
+      explanation = "Patterns suggest AI authorship.";
     }
+
+    resultBox.className = 'verdict ' + className;
+    resultBox.innerHTML = `
+      ${verdictLabel}
+      <p class='subline'>${explanation}</p>
+    `;
+  } catch (err) {
+    resultBox.innerHTML = 'Error reaching analysis server.';
+    resultBox.className = 'verdict ai';
+  }
+}
   </script>
 </body>
 </html>
