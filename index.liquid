@@ -160,10 +160,19 @@ title: AI Lyrics Checker
           className = 'ai';
         }
 
+        let explanation = '';
+        if (verdictLabel.includes('Overruled')) {
+          explanation = 'Phrase patterns triggered override.';
+        } else {
+          explanation = className === 'ai'
+            ? 'Patterns suggest AI authorship.'
+            : 'Patterns suggest human authorship.';
+        }
+
         resultBox.className = 'verdict ' + className;
         resultBox.innerHTML = `
           ${verdictLabel}
-          <p class='subline'>${data.explanation || 'Analysis complete.'}</p>
+          <p class='subline'>${explanation}</p>
           <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${conf}%;'></div></div>
           <div class='confidence-label'>Confidence: ${conf}%</div>
         `;
