@@ -1,0 +1,10 @@
+{
+    "name": "ai-lyrics-checker-backend",
+    "version": "1.0.0",
+    "main": "netlify/functions/checkLyrics.js",
+    "type": "module",
+    "dependencies": {
+      "openai": "^4.20.0"
+    }
+  }
+  
