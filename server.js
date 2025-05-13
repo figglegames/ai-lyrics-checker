@@ -48,12 +48,13 @@ app.post('/checkLyrics', async (req, res) => {
 
   try {
     const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-0125-preview",
       temperature: 0.3,
+      max_tokens: 150,
       messages: [
-        { role: "system", content: "You are a lyrics analysis engine." },
+        { role: "system", content: "You detect if lyrics were written by a human or AI. Be concise. Respond with a clear verdict and one short sentence explaining why." },
         { role: "user", content: prompt }
-      ]
+      ]      
     });
 
     const reply = completion.data.choices[0].message.content.trim();
