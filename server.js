@@ -1,8 +1,6 @@
-import bodyParser from 'body-parser';
-const handler = require('./netlify/functions/checkLyrics.js');
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const handler = require('./netlify/functions/checkLyrics.js');
 
 const app = express();
 app.use(bodyParser.json());
