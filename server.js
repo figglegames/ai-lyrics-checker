@@ -64,6 +64,7 @@ app.post('/checkLyrics', async (req, res) => {
     });
 
     const reply = completion.data.choices[0].message.content.trim();
+    console.log("GPT Reply:", reply);
     res.setHeader('Content-Type', 'application/json');
     res.send(reply);
   } catch (err) {
