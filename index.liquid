@@ -53,6 +53,11 @@ title: AI Lyrics Checker
       border-color: #008000;
       color: #003300;
     }
+    .verdict.uncertain {
+      background: #fffbe6;
+      border-color: #e6b800;
+      color: #665200;
+    }
     .verdict.ai {
       background: #fcecec;
       border-color: #b30000;
@@ -171,7 +176,7 @@ title: AI Lyrics Checker
       explanation = "Patterns suggest human authorship.";
     } else if (conf >= 50) {
       verdictLabel = "Possibly human";
-      className = "human";
+      className = "uncertain";
       explanation = "Unclear, but leans human.";
     } else if (phraseHits >= 3) {
       verdictLabel = "Very likely AI-generated";
