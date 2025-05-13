@@ -22,23 +22,19 @@ app.post('/checkLyrics', async (req, res) => {
 
   const prompt = `You are an expert lyrics analyst.
 
-    Your task is to analyze the following lyrics and classify their likely origin, using deep understanding of songwriting conventions.
-
-    Determine if the lyrics are:
-    A) From a published, recognizable human-written song  
-    B) Likely human-written but unpublished  
-    C) Possibly AI-generated  
+    Given the following lyrics, determine if they are:
+    A) From a published, recognizable human-written song
+    B) Likely human-written but unpublished
+    C) Possibly AI-generated
     D) Very likely AI-generated
 
-    Pay close attention to:
-    - Repetitive phrases or overly tidy rhyme/meter
-    - Overuse of generic, sentimental imagery (e.g. "dust," "amber hue," "front porch swing")
-    - Lack of lyrical surprises or originality
-    - Emotional tone that feels imitated rather than lived
+    When deciding, consider the following:
+    - Polished, poetic language does not guarantee human authorship.
+    - Be cautious with lyrics that use vague or sentimental Americana themes (e.g., "amber hue", "front porch swing", "home collide").
+    - If lyrics seem structurally sound but lack personal specificity, emotional nuance, or originality—despite appearing poetic—treat them as potentially AI-generated.
+    - Flag patterns that seem stitched together, overly polished, or emotionally hollow.
 
-    Beware: AI lyrics often use overly poetic, polished structures, emotional clichés, and nostalgic tropes without specific personal detail.
-
-    Respond only in this JSON format:
+    Respond in this JSON format:
     {
     "verdict": "...",
     "confidence": ...,
@@ -47,6 +43,7 @@ app.post('/checkLyrics', async (req, res) => {
 
     Lyrics:
     """${lyrics}"""`;
+
 
 
   try {
