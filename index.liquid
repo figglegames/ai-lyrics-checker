@@ -138,16 +138,34 @@ title: AI Lyrics Checker
         });
 
         const data = await response.json();
+        const conf = parseFloat(data.confidence) || 0;
 
-        let className = 'human';
-        if (data.verdict.toLowerCase().includes('ai')) className = 'ai';
+        let verdictLabel = 'Very likely AI-generated';
+        let className = 'ai';
+
+        if (conf >= 90) {
+          verdictLabel = 'Human-written';
+          className = 'human';
+        } else if (conf >= 70) {
+          verdictLabel = 'Likely human-written';
+          className = 'human';
+        } else if (conf >= 50) {
+          verdictLabel = 'Possibly human-written';
+          className = 'human';
+        } else if (conf >= 30) {
+          verdictLabel = 'Possibly AI-generated';
+          className = 'ai';
+        } else {
+          verdictLabel = 'Very likely AI-generated';
+          className = 'ai';
+        }
 
         resultBox.className = 'verdict ' + className;
         resultBox.innerHTML = `
-          ${data.verdict}
+          ${verdictLabel}
           <p class='subline'>${data.explanation || 'Analysis complete.'}</p>
-          <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${data.confidence || 0}%;'></div></div>
-          <div class='confidence-label'>Confidence: ${data.confidence || '—'}%</div>
+          <div class='confidence-bar'><div class='bar-fill ${className}' style='width: ${conf}%;'></div></div>
+          <div class='confidence-label'>Confidence: ${conf}%</div>
         `;
       } catch (err) {
         resultBox.innerHTML = 'Error reaching GPT endpoint.';
