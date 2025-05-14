@@ -69,33 +69,40 @@
     button:hover {
       background: #005fa3;
     }
-    .verdict {
-      margin-top: 2rem;
-      padding: 1.2rem 1.5rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-      border-radius: 8px;
-      display: inline-block;
+    .verdict-box {
+      max-width: 380px;
+      margin: 2rem auto 0 auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+      text-align: center;
+      font-family: 'Inter', sans-serif;
     }
-    .verdict.human {
-      background: #e1fbe8;
-      color: #136d1c;
-      border: 2px solid #78d88d;
+    .verdict-box .stripe {
+      height: 6px;
+      background-color: #009933;
     }
-    .verdict.ai {
-      background: #fde1e1;
-      color: #930000;
-      border: 2px solid #e08686;
+    .verdict-box .content {
+      padding: 1rem 1.25rem;
     }
-    .verdict.mixed {
-      background: #fff7dd;
-      color: #665200;
-      border: 2px solid #e6c300;
+    .verdict-box h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0;
     }
-    .subline {
+    .verdict-box p {
       font-size: 0.95rem;
-      font-weight: 400;
-      margin-top: 0.6rem;
+      margin-top: 0.4rem;
+      color: #333;
+    }
+    .verdict-red .stripe {
+      background-color: #cc0000;
+    }
+    .verdict-yellow .stripe {
+      background-color: #e6b800;
+    }
+    .verdict-green .stripe {
+      background-color: #009933;
     }
     #softError {
       display: none;
@@ -131,7 +138,6 @@
     <button onclick="analyzeLyrics()">Analyze Lyrics Now</button>
     <button onclick="resetForm()" style="margin-left: 1rem; background: #999;">Clear</button>
   </div>
-
   <div id="result"></div>
   <div id="softError"></div>
 
@@ -204,34 +210,37 @@
 
         if (isKnownTitle) {
           verdictLabel = "Human-written";
-          className = "human";
+          className = "green";
           explanation = "Published lyrics recognized.";
         } else if (conf >= 85) {
           verdictLabel = "Human-written";
-          className = "human";
+          className = "green";
           explanation = "Patterns suggest human authorship.";
         } else if (conf >= 50) {
           verdictLabel = "Possibly human";
-          className = "mixed";
+          className = "yellow";
           explanation = "Unclear, but leans human.";
         } else if (phraseHits >= 3) {
           verdictLabel = "Very likely AI-generated";
-          className = "ai";
+          className = "red";
           explanation = "Multiple AI-style phrases detected.";
         } else {
           verdictLabel = "Possibly AI-generated";
-          className = "ai";
+          className = "red";
           explanation = "Patterns suggest AI authorship.";
         }
 
-        resultBox.className = 'verdict ' + className;
+        resultBox.className = 'verdict-box verdict-' + className;
         resultBox.innerHTML = `
-          ${verdictLabel}
-          <p class='subline'>${explanation}</p>
+          <div class="stripe"></div>
+          <div class="content">
+            <h2>${verdictLabel}</h2>
+            <p>${explanation}</p>
+          </div>
         `;
       } catch (err) {
         resultBox.innerHTML = 'Error reaching analysis server.';
-        resultBox.className = 'verdict ai';
+        resultBox.className = 'verdict-box verdict-red';
       }
     }
   </script>
