@@ -79,7 +79,7 @@ title: AI Lyrics Checker – Was This Song AI-Generated?
   {% include "nav.html" %}
 
   <h1>AI Lyrics Checker</h1>
-  <p>Wondering if a song was written by AI? Paste the lyrics below to instantly check for signs of AI-generated content or human authorship.</p>
+  <p>Paste your lyrics below. We use advanced AI and pattern detection to spot signs of human or machine-written lyrics.</p>
 
   <textarea id="lyrics" placeholder="Paste your lyrics here..."></textarea>
   <div style="margin-top: 1rem;">
@@ -99,6 +99,63 @@ title: AI Lyrics Checker – Was This Song AI-Generated?
       resultBox.innerHTML = '';
       resultBox.className = '';
       resultBox.style.display = 'none';
+    }
+
+    async function analyzeLyrics() {
+      const text = document.getElementById('lyrics').value.trim();
+      const resultBox = document.getElementById('result');
+      if (!text) {
+        resultBox.style.display = 'none';
+        return;
+      }
+
+      resultBox.innerHTML = 'Analyzing...';
+      resultBox.className = '';
+      resultBox.style.display = 'block';
+
+      try {
+        const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lyrics: text }),
+        });
+
+        const data = await response.json();
+        let verdict = '';
+        let explanation = '';
+        let className = '';
+
+        if (data.verdict === "A") {
+          verdict = "Human-written";
+          explanation = "Published lyrics recognized.";
+          className = "human";
+        } else if (data.verdict === "B") {
+          verdict = "Human-written";
+          explanation = "Patterns suggest human authorship.";
+          className = "human";
+        } else if (data.verdict === "C") {
+          verdict = "Possibly human";
+          explanation = "Unclear, but leans human.";
+          className = "mixed";
+        } else if (data.verdict === "D") {
+          verdict = "Very likely AI-generated";
+          explanation = "Patterns suggest AI authorship.";
+          className = "ai";
+        } else {
+          verdict = "Unknown";
+          explanation = "Unable to determine authorship.";
+          className = "mixed";
+        }
+
+        resultBox.className = 'verdict ' + className;
+        resultBox.innerHTML = `
+          ${verdict}
+          <p class='subline'>${explanation}</p>
+        `;
+      } catch (err) {
+        resultBox.innerHTML = 'Error reaching analysis server.';
+        resultBox.className = 'verdict ai';
+      }
     }
   </script>
 </body>
