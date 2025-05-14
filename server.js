@@ -8,14 +8,19 @@ const app = express();
 
 // ====== Rate Limit Logic ======
 const rateLimitMap = new Map();
+const exemptIPs = ['2603:8000:ae00:a5ed:ec30:d3df:80bc:c6bb']; // <-- Replace this with your IP
 
 setInterval(() => {
   rateLimitMap.clear(); // Reset every 24 hours
 }, 24 * 60 * 60 * 1000);
 
-// Middleware for rate limiting
 app.use('/checkLyrics', (req, res, next) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+  if (exemptIPs.includes(ip)) {
+    return next(); // Skip rate limit for exempt IPs
+  }
+
   const count = rateLimitMap.get(ip) || 0;
 
   if (count >= 10) {
