@@ -24,7 +24,9 @@ app.use('/checkLyrics', (req, res, next) => {
   const count = rateLimitMap.get(ip) || 0;
 
   if (count >= 10) {
-    return res.status(429).json({ error: 'Daily limit reached. Please come back tomorrow.' });
+    return res.status(429).json({
+    error: "You've reached your daily limit of 10 lyric checks. Please come back tomorrow for more free analyses — we’re glad you’re here!"
+  });
   }
 
   rateLimitMap.set(ip, count + 1);

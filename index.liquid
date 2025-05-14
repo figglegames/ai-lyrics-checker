@@ -1,7 +1,3 @@
----
-title: AI Lyrics Checker – Was This Song AI-Generated?
----
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,6 +97,16 @@ title: AI Lyrics Checker – Was This Song AI-Generated?
       font-weight: 400;
       margin-top: 0.6rem;
     }
+    #softError {
+      display: none;
+      margin-top: 1.5rem;
+      color: #a00;
+      font-weight: 500;
+      background: #ffecec;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #f5b4b4;
+    }
     footer {
       margin-top: 3rem;
       font-size: 0.85rem;
@@ -125,7 +131,9 @@ title: AI Lyrics Checker – Was This Song AI-Generated?
     <button onclick="analyzeLyrics()">Analyze Lyrics Now</button>
     <button onclick="resetForm()" style="margin-left: 1rem; background: #999;">Clear</button>
   </div>
+
   <div id="result"></div>
+  <div id="softError"></div>
 
   <footer>
     <p><strong>Disclaimer:</strong> This tool provides an estimate based on known AI patterns and language model analysis. It does not guarantee accuracy. No lyrics are stored or shared. For entertainment and educational purposes only.</p>
@@ -138,19 +146,24 @@ title: AI Lyrics Checker – Was This Song AI-Generated?
       resultBox.innerHTML = '';
       resultBox.className = '';
       resultBox.style.display = 'none';
+      document.getElementById('softError').style.display = 'none';
     }
 
     async function analyzeLyrics() {
       const text = document.getElementById('lyrics').value.trim();
       const resultBox = document.getElementById('result');
+      const softError = document.getElementById('softError');
+
       if (!text) {
         resultBox.style.display = 'none';
+        softError.style.display = 'none';
         return;
       }
 
       resultBox.innerHTML = 'Analyzing...';
       resultBox.className = '';
       resultBox.style.display = 'block';
+      softError.style.display = 'none';
 
       const aiPhrases = [
         'dust kicks up', 'amber hue', 'soul gets fed', 'wild winds sing',
@@ -173,6 +186,14 @@ title: AI Lyrics Checker – Was This Song AI-Generated?
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ lyrics: text })
         });
+
+        if (response.status === 429) {
+          const errorMsg = await response.json();
+          softError.innerText = errorMsg.error || "You've hit the daily limit.";
+          softError.style.display = 'block';
+          resultBox.style.display = 'none';
+          return;
+        }
 
         const data = await response.json();
         const conf = parseFloat(data.confidence) || 0;
