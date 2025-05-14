@@ -12,9 +12,13 @@
       background: #f9fafa;
       color: #222;
       padding: 2rem;
-      max-width: 960px;
+      max-width: 800px;
       margin: auto;
       text-align: center;
+    }
+    .wide-line {
+      max-width: 960px;
+      margin: 0 auto;
     }
     nav {
       text-align: right;
@@ -91,7 +95,6 @@
       margin: 0;
       white-space: nowrap;
     }
-
     .verdict-box p {
       font-size: 0.95rem;
       margin-top: 0.4rem;
@@ -132,7 +135,9 @@
 
   <h1>AI Lyrics Checker</h1>
   <p class="description">Paste your lyrics below.</p>
-  We use advanced AI and pattern detection to check whether lyrics were written by a human or <span style="white-space: nowrap;">AI-generated</span>.
+  <div class="wide-line">
+    <p class="tagline">We use advanced AI and pattern detection to check whether lyrics were likely written by a human or AI-generated.</p>
+  </div>
   <p class="tagline"><em>See how your lyrics hold up under AI detection — designed specifically for song lyrics.</em></p>
 
   <textarea id="lyrics" placeholder="Paste your lyrics here..."></textarea>
