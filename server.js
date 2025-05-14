@@ -20,7 +20,9 @@ const openai = new OpenAIApi(configuration);
 
 app.post('/checkLyrics', async (req, res) => {
   const lyrics = req.body.lyrics;
-
+  const maxLength = 2000; // characters, not words
+  const inputLyrics = lyrics.length > maxLength ? lyrics.slice(0, maxLength) : lyrics;
+  
   const prompt = `You are an expert lyrics analyst.
 
     Given the following lyrics, determine if they are:
@@ -43,7 +45,8 @@ app.post('/checkLyrics', async (req, res) => {
     }
 
     Lyrics:
-    """${lyrics}"""`;
+    """${inputLyrics}"""
+
 
 
 
@@ -76,7 +79,7 @@ app.post('/checkLyrics', async (req, res) => {
     const logEntry = {
         timestamp: new Date().toISOString(),
         snippet: lyrics.slice(0, 100).replace(/\n/g, ' '),
-        verdict: parsed.verdict,
+        verdict: parsed.verdict,p
         confidence: parsed.confidence,
         explanation: parsed.explanation
     };
