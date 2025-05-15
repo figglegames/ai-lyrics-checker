@@ -75,6 +75,7 @@
     button:hover {
       background: #005fa3;
     }
+    
     #softError {
       display: none;
       margin-top: 1.5rem;
@@ -130,9 +131,22 @@
       color: #999;
     }
     .blurred {
-    filter: blur(5px);
-    pointer-events: none;
-  }
+      filter: blur(5px);
+      pointer-events: none;
+    }
+    @keyframes dots {
+      0% { content: "Analyzing"; }
+      25% { content: "Analyzing."; }
+      50% { content: "Analyzing.."; }
+      75% { content: "Analyzing..."; }
+      100% { content: "Analyzing"; }
+    }
+
+    .dots::after {
+      content: "";
+      animation: dots 1.2s infinite steps(4, end);
+    }
+
   </style>
 </head>
 <body>
@@ -152,6 +166,10 @@
     <button onclick="analyzeLyrics()">Analyze Lyrics Now</button>
     <button onclick="resetForm()" style="margin-left: 1rem; background: #999;">Clear</button>
   </div>
+  <div id="loading" style="display: none; margin-top: 1rem; font-style: italic; color: #007acc;">
+    <span class="dots">Analyzing</span>
+  </div>
+
   <div id="softError"></div>
 
   <div class="modal-overlay" id="verdictModal">
@@ -182,7 +200,7 @@
       document.getElementById('verdictModal').style.display = 'none';
       document.getElementById('lyrics').classList.remove('blurred');
     }
-    
+
     async function analyzeLyrics() {
       const text = document.getElementById('lyrics').value.trim();
       const modal = document.getElementById('verdictModal');
@@ -212,7 +230,7 @@
       const textLower = text.toLowerCase();
       const phraseHits = aiPhrases.filter(p => textLower.includes(p)).length;
       const isKnownTitle = knownHumanTitles.some(title => textLower.includes(title));
-
+      document.getElementById('loading').style.display = 'block';
       try {
         const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
           method: 'POST',
@@ -260,6 +278,7 @@
 
         title.innerText = verdictLabel;
         message.innerText = explanation;
+        document.getElementById('loading').style.display = 'none';
         document.getElementById('lyrics').classList.add('blurred');
         modal.style.display = 'flex';
       } catch (err) {
