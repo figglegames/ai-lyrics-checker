@@ -156,7 +156,7 @@
 
   <div class="modal-overlay" id="verdictModal">
     <div class="modal-box">
-      <div class="close-btn" onclick="document.getElementById('verdictModal').style.display='none'">×</div>
+      <div class="close-btn" onclick="closeVerdict()">×</div>
       <h2 id="verdictTitle">Verdict</h2>
       <p id="verdictMessage">Explanation will go here.</p>
       <p class="disclaimer">This analysis is based on style patterns only. It does not confirm authorship or intent.</p>
@@ -178,7 +178,11 @@
       document.getElementById('lyrics').classList.remove('blurred');
       document.getElementById('softError').style.display = 'none';
     }
-
+    function closeVerdict() {
+      document.getElementById('verdictModal').style.display = 'none';
+      document.getElementById('lyrics').classList.remove('blurred');
+    }
+    
     async function analyzeLyrics() {
       const text = document.getElementById('lyrics').value.trim();
       const modal = document.getElementById('verdictModal');
@@ -263,6 +267,7 @@
         message.innerText = "There was a problem reaching the analysis server.";
         modal.style.display = 'flex';
       }
+
     }
   </script>
 </body>
