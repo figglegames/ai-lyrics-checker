@@ -142,10 +142,24 @@
       100% { content: "Analyzing"; }
     }
 
-    .dots::after {
-      content: "";
-      animation: dots 1.2s infinite steps(4, end);
+    @keyframes blink {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
     }
+
+    .dot-one {
+      animation: blink 1s infinite;
+    }
+    .dot-two {
+      animation: blink 1s infinite;
+      animation-delay: 0.2s;
+    }
+    .dot-three {
+      animation: blink 1s infinite;
+      animation-delay: 0.4s;
+    }
+
 
   </style>
 </head>
@@ -167,8 +181,9 @@
     <button onclick="resetForm()" style="margin-left: 1rem; background: #999;">Clear</button>
   </div>
   <div id="loading" style="display: none; margin-top: 1rem; font-style: italic; color: #007acc;">
-    <span class="dots">Analyzing</span>
+    Analyzing<span class="dot-one">.</span><span class="dot-two">.</span><span class="dot-three">.</span>
   </div>
+
 
   <div id="softError"></div>
 
