@@ -111,6 +111,7 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       text-align: center;
       position: relative;
+      border-top: 6px solid transparent;
     }
     .modal-box h2 {
       margin-top: 0;
@@ -225,6 +226,7 @@
 
         const data = await response.json();
         const conf = parseFloat(data.confidence) || 0;
+        const modalBox = document.querySelector(".modal-box");
 
         let verdictLabel = '';
         let explanation = '';
@@ -232,19 +234,25 @@
         if (isKnownTitle) {
           verdictLabel = "Human-written";
           explanation = "Published lyrics recognized.";
+          modalBox.style.borderTopColor = "#2ecc71"; // green
         } else if (conf >= 85) {
           verdictLabel = "Human-written";
           explanation = "Patterns suggest human authorship.";
+          modalBox.style.borderTopColor = "#2ecc71"; // green
         } else if (conf >= 50) {
           verdictLabel = "Possibly human";
           explanation = "Unclear, but leans human.";
+          modalBox.style.borderTopColor = "#f1c40f"; // yellow
         } else if (phraseHits >= 3) {
           verdictLabel = "Very likely AI-generated";
           explanation = "Multiple AI-style phrases detected.";
+          modalBox.style.borderTopColor = "#e74c3c"; // red
         } else {
           verdictLabel = "Possibly AI-generated";
           explanation = "Patterns suggest AI authorship.";
+          modalBox.style.borderTopColor = "#e67e22"; // orange
         }
+
 
         title.innerText = verdictLabel;
         message.innerText = explanation;
