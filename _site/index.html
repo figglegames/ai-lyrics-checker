@@ -105,15 +105,23 @@
     }
     .modal-box {
       background: #fff;
-      padding: 2rem;
-      border-radius: 10px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
       max-width: 500px;
       width: 90%;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       text-align: center;
       position: relative;
-      border-top: 6px solid transparent;
+      overflow: hidden;
+      padding-top: 0;
     }
+
+    .modal-box::before {
+      content: "";
+      display: block;
+      height: 8px;
+      background: #22aa66;
+    }           
+
     .modal-box h2 {
       margin-top: 0;
     }
