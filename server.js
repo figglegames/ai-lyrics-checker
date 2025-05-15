@@ -1,3 +1,4 @@
+const knownSongs = require('./known_songs_dataset.json');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -48,6 +49,33 @@ app.post('/checkLyrics', async (req, res) => {
   const lyrics = req.body.lyrics;
   const maxLength = 2000;
   const inputLyrics = lyrics.length > maxLength ? lyrics.slice(0, maxLength) : lyrics;
+  const textLower = inputLyrics.toLowerCase();
+  const matchedSong = knownSongs.find(song =>
+    textLower.includes(song.lyrics_snippet.toLowerCase())
+  );
+
+  if (matchedSong) {
+    const matchedResult = {
+      verdict: "Human-written",
+      confidence: 99,
+      explanation: `Match found: "${matchedSong.title}" by ${matchedSong.artist}`
+    };
+
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      snippet: lyrics.slice(0, 100).replace(/\n/g, ' '),
+      verdict: matchedResult.verdict,
+      confidence: matchedResult.confidence,
+      explanation: matchedResult.explanation
+    };
+
+    fs.appendFile('lyrics-log.jsonl', JSON.stringify(logEntry) + '\n', err => {
+      if (err) console.error('Logging failed:', err);
+    });
+
+    return res.json(matchedResult);
+}
+
 
   const prompt = `You are an expert lyrics analyst.
 

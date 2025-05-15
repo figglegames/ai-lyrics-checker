@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Imagine",
+    "artist": "John Lennon",
+    "lyrics_snippet": "Imagine all the people living life in peace"
+  },
+  {
+    "title": "Let It Be",
+    "artist": "The Beatles",
+    "lyrics_snippet": "When I find myself in times of trouble Mother Mary comes to me"
+  },
+  {
+    "title": "Bohemian Rhapsody",
+    "artist": "Queen",
+    "lyrics_snippet": "Is this the real life? Is this just fantasy?"
+  },
+  {
+    "title": "Hallelujah",
+    "artist": "Leonard Cohen",
+    "lyrics_snippet": "I heard there was a secret chord that David played and it pleased the Lord"
+  },
+  {
+    "title": "Hey Jude",
+    "artist": "The Beatles",
+    "lyrics_snippet": "Hey Jude, don't make it bad take a sad song and make it better"
+  }
+]
