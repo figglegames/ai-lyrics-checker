@@ -26,14 +26,13 @@ app.use('/checkLyrics', (req, res, next) => {
 
   if (count >= 10) {
     return res.status(429).json({
-    error: "You've reached your daily limit of 10 lyric checks. Please come back tomorrow for more free analyses — we’re glad you’re here!"
-  });
+      error: "You've reached your daily limit of 10 lyric checks. Please come back tomorrow for more free analyses — we’re glad you’re here!"
+    });
   }
 
   rateLimitMap.set(ip, count + 1);
   next();
 });
-// ===============================
 
 app.use(cors({
   origin: [
@@ -51,24 +50,26 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+// ===== Normalize helper =====
+const normalize = str => str.toLowerCase().replace(/[“”‘’]/g, '"').replace(/[^\x00-\x7F]/g, '');
+
 app.post('/checkLyrics', async (req, res) => {
   const lyrics = req.body.lyrics;
   const maxLength = 2000;
   const inputLyrics = lyrics.length > maxLength ? lyrics.slice(0, maxLength) : lyrics;
-  const textLower = inputLyrics.toLowerCase();
-  const normalize = str => str.toLowerCase().replace(/[“”‘’]/g, '"').replace(/[^\x00-\x7F]/g, '');
-  const matchedSong = knownSongs.find(song =>
-  normalize(textLower).includes(normalize(song.lyrics_snippet))
-  );
+  const normalizedInput = normalize(inputLyrics);
 
   console.log("Checking against known songs...");
-  console.log("First 200 chars of input:", textLower.slice(0, 200));
+  console.log("First 200 chars of input:", normalizedInput.slice(0, 200));
   knownSongs.forEach(song => {
-    if (normalize(textLower).includes(normalize(song.lyrics_snippet))) {
-        console.log("MATCH FOUND:", song.title, song.artist);
+    if (normalizedInput.includes(normalize(song.lyrics_snippet))) {
+      console.log("MATCH FOUND:", song.title, song.artist);
     }
   });
 
+  const matchedSong = knownSongs.find(song =>
+    normalizedInput.includes(normalize(song.lyrics_snippet))
+  );
 
   if (matchedSong) {
     const matchedResult = {
@@ -90,32 +91,32 @@ app.post('/checkLyrics', async (req, res) => {
     });
 
     return res.json(matchedResult);
-}
+  }
 
-
+  // ===== GPT fallback if no known song matched =====
   const prompt = `You are an expert lyrics analyst.
 
-    Given the following lyrics, determine if they are:
-    A) From a published, recognizable human-written song
-    B) Likely human-written but unpublished
-    C) Possibly AI-generated
-    D) Very likely AI-generated
+Given the following lyrics, determine if they are:
+A) From a published, recognizable human-written song
+B) Likely human-written but unpublished
+C) Possibly AI-generated
+D) Very likely AI-generated
 
-    When deciding, consider the following:
-    - Polished, poetic language does not guarantee human authorship.
-    - Be cautious with lyrics that use vague or sentimental Americana themes (e.g., "amber hue", "front porch swing", "home collide").
-    - If lyrics seem structurally sound but lack personal specificity, emotional nuance, or originality—despite appearing poetic—treat them as potentially AI-generated.
-    - Flag patterns that seem stitched together, overly polished, or emotionally hollow.
+When deciding, consider the following:
+- Polished, poetic language does not guarantee human authorship.
+- Be cautious with lyrics that use vague or sentimental Americana themes (e.g., "amber hue", "front porch swing", "home collide").
+- If lyrics seem structurally sound but lack personal specificity, emotional nuance, or originality—despite appearing poetic—treat them as potentially AI-generated.
+- Flag patterns that seem stitched together, overly polished, or emotionally hollow.
 
-    Respond in this JSON format:
-    {
-    "verdict": "...",
-    "confidence": ...,
-    "explanation": "..."
-    }
+Respond in this JSON format:
+{
+  "verdict": "...",
+  "confidence": ...,
+  "explanation": "..."
+}
 
-    Lyrics:
-    """${inputLyrics}"""`;
+Lyrics:
+"""${inputLyrics}"""`;
 
   try {
     const completion = await openai.createChatCompletion({
@@ -157,7 +158,7 @@ app.post('/checkLyrics', async (req, res) => {
 
     console.log("GPT Reply:", reply);
     res.setHeader('Content-Type', 'application/json');
-    res.send(reply);
+    res.json(parsed);
   } catch (err) {
     console.error('GPT ERROR:', err);
     res.status(500).json({ error: 'Error analyzing lyrics', details: err.message });
