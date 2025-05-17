@@ -163,12 +163,21 @@ Lyrics:
 
     const reply = completion.data.choices[0].message.content.trim();
 
+    // Try to extract valid JSON even if GPT wraps it in extra text
+    let cleaned = reply;
+    const start = reply.indexOf('{');
+    const end = reply.lastIndexOf('}');
+    if (start !== -1 && end !== -1) {
+      cleaned = reply.slice(start, end + 1);
+    }
+
     let parsed;
     try {
-      parsed = JSON.parse(reply);
+      parsed = JSON.parse(cleaned);
     } catch (e) {
       parsed = { verdict: "Error", confidence: 0, explanation: "Failed to parse reply." };
     }
+
 
     const logEntry = {
       timestamp: new Date().toISOString(),
