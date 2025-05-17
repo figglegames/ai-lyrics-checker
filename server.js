@@ -36,8 +36,14 @@ app.use('/checkLyrics', (req, res, next) => {
 // ===============================
 
 app.use(cors({
-  origin: ['https://ailyricschecker.com', 'https://www.ailyricschecker.com']
+  origin: [
+    'https://ailyricschecker.com',
+    'https://www.ailyricschecker.com',
+    'https://lyricsdetector.com',
+    'https://www.lyricsdetector.com'
+  ]
 }));
+
 app.use(bodyParser.json());
 
 const configuration = new Configuration({
