@@ -48,6 +48,41 @@ const openai = new OpenAIApi(configuration);
 
 const normalize = str => str.toLowerCase().replace(/[“”‘’]/g, '"').replace(/[^\x00-\x7F]/g, '');
 
+function similarity(a, b) {
+  const longer = a.length > b.length ? a : b;
+  const shorter = a.length > b.length ? b : a;
+  const longerLength = longer.length;
+  if (longerLength === 0) return 1.0;
+
+  const editDistance = levenshtein(longer, shorter);
+  return (longerLength - editDistance) / parseFloat(longerLength);
+}
+
+function levenshtein(a, b) {
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+
 app.post('/checkLyrics', async (req, res) => {
   const lyrics = req.body.lyrics;
   const maxLength = 2000;
@@ -62,9 +97,12 @@ app.post('/checkLyrics', async (req, res) => {
     }
   });
 
-  const matchedSong = knownSongs.find(song =>
-    normalizedInput.includes(normalize(song.lyrics_snippet))
-  );
+    const matchedSong = knownSongs.find(song => {
+    const a = normalizedInput;
+    const b = normalize(song.lyrics_snippet);
+    return similarity(a, b) > 0.9; // 90% or greater match
+});
+
 
   if (matchedSong) {
     const matchedResult = {
