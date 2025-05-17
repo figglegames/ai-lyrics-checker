@@ -56,9 +56,11 @@ app.post('/checkLyrics', async (req, res) => {
   const maxLength = 2000;
   const inputLyrics = lyrics.length > maxLength ? lyrics.slice(0, maxLength) : lyrics;
   const textLower = inputLyrics.toLowerCase();
+  const normalize = str => str.toLowerCase().replace(/[“”‘’]/g, '"').replace(/[^\x00-\x7F]/g, '');
   const matchedSong = knownSongs.find(song =>
-    textLower.includes(song.lyrics_snippet.toLowerCase())
+  normalize(textLower).includes(normalize(song.lyrics_snippet))
   );
+
 
   if (matchedSong) {
     const matchedResult = {
