@@ -90,8 +90,12 @@ app.post('/checkLyrics', async (req, res) => {
       if (err) console.error('Logging failed:', err);
     });
 
-    return res.json(matchedResult);
-  }
+    return res.json({
+      verdict: matchedResult.verdict,
+      confidence: matchedResult.confidence,
+      explanation: matchedResult.explanation
+});
+
 
   // ===== GPT fallback if no known song matched =====
   const prompt = `You are an expert lyrics analyst.
