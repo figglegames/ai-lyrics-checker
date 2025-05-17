@@ -246,6 +246,7 @@
       const title = document.getElementById('verdictTitle');
       const message = document.getElementById('verdictMessage');
       const softError = document.getElementById('softError');
+      const modalBox = document.querySelector(".modal-box");
 
       if (!text) {
         modal.style.display = 'none';
@@ -254,22 +255,8 @@
       }
 
       softError.style.display = 'none';
-
-      const aiPhrases = [
-        'dust kicks up', 'amber hue', 'soul gets fed', 'wild winds sing',
-        'front porch swing', 'memory flame', 'home collide', 'shimmering veil',
-        'aching sky', 'whispers fade', 'call my name', 'endless night'
-      ];
-
-      const knownHumanTitles = [
-        "imagine", "don't go breaking my heart", "we are the world", "let it be",
-        "bohemian rhapsody", "yesterday", "hallelujah", "hey jude", "purple rain"
-      ];
-
-      const textLower = text.toLowerCase();
-      const phraseHits = aiPhrases.filter(p => textLower.includes(p)).length;
-      const isKnownTitle = knownHumanTitles.some(title => textLower.includes(title));
       document.getElementById('loading').style.display = 'block';
+
       try {
         const response = await fetch('https://ai-lyrics-checker.onrender.com/checkLyrics', {
           method: 'POST',
@@ -286,46 +273,28 @@
         }
 
         const data = await response.json();
+        const verdict = data.verdict || "Unknown";
+        const explanation = data.explanation || "No explanation provided.";
         const conf = parseFloat(data.confidence) || 0;
-        const modalBox = document.querySelector(".modal-box");
 
-        let verdictLabel = '';
-        let explanation = '';
+        // Set verdict color
+        if (conf >= 85) modalBox.style.borderTopColor = "#2ecc71";      // Green
+        else if (conf >= 50) modalBox.style.borderTopColor = "#f1c40f"; // Yellow
+        else if (verdict.toLowerCase().includes("very likely ai")) modalBox.style.borderTopColor = "#e74c3c"; // Red
+        else modalBox.style.borderTopColor = "#e67e22";                 // Orange
 
-        if (isKnownTitle) {
-          verdictLabel = "Human-written";
-          explanation = "Published lyrics recognized.";
-          modalBox.style.borderTopColor = "#2ecc71"; // green
-        } else if (conf >= 85) {
-          verdictLabel = "Human-written";
-          explanation = "Patterns suggest human authorship.";
-          modalBox.style.borderTopColor = "#2ecc71"; // green
-        } else if (conf >= 50) {
-          verdictLabel = "Possibly human";
-          explanation = "Unclear, but leans human.";
-          modalBox.style.borderTopColor = "#f1c40f"; // yellow
-        } else if (phraseHits >= 3) {
-          verdictLabel = "Very likely AI-generated";
-          explanation = "Multiple AI-style phrases detected.";
-          modalBox.style.borderTopColor = "#e74c3c"; // red
-        } else {
-          verdictLabel = "Possibly AI-generated";
-          explanation = "Patterns suggest AI authorship.";
-          modalBox.style.borderTopColor = "#e67e22"; // orange
-        }
-
-
-        title.innerText = verdictLabel;
+        title.innerText = verdict;
         message.innerText = explanation;
+
         document.getElementById('loading').style.display = 'none';
         document.getElementById('lyrics').classList.add('blurred');
         modal.style.display = 'flex';
+
       } catch (err) {
         title.innerText = "Error";
         message.innerText = "There was a problem reaching the analysis server.";
         modal.style.display = 'flex';
       }
-
     }
   </script>
 </body>
