@@ -64,10 +64,11 @@ app.post('/checkLyrics', async (req, res) => {
   console.log("Checking against known songs...");
   console.log("First 200 chars of input:", textLower.slice(0, 200));
   knownSongs.forEach(song => {
-    if (textLower.includes(song.lyrics_snippet.toLowerCase())) {
-      console.log("MATCH FOUND:", song.title, song.artist);
+    if (normalize(textLower).includes(normalize(song.lyrics_snippet))) {
+        console.log("MATCH FOUND:", song.title, song.artist);
     }
-});
+  });
+
 
   if (matchedSong) {
     const matchedResult = {
