@@ -9,21 +9,17 @@ const app = express();
 
 // ====== Rate Limit Logic ======
 const rateLimitMap = new Map();
-const exemptIPs = ['2603:8000:ae00:a5ed:ec30:d3df:80bc:c6bb']; // <-- Replace this with your IP
+const exemptIPs = ['2603:8000:ae00:a5ed:ec30:d3df:80bc:c6bb'];
 
 setInterval(() => {
-  rateLimitMap.clear(); // Reset every 24 hours
+  rateLimitMap.clear();
 }, 24 * 60 * 60 * 1000);
 
 app.use('/checkLyrics', (req, res, next) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-
-  if (exemptIPs.includes(ip)) {
-    return next(); // Skip rate limit for exempt IPs
-  }
+  if (exemptIPs.includes(ip)) return next();
 
   const count = rateLimitMap.get(ip) || 0;
-
   if (count >= 10) {
     return res.status(429).json({
       error: "You've reached your daily limit of 10 lyric checks. Please come back tomorrow for more free analyses — we’re glad you’re here!"
@@ -50,7 +46,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-// ===== Normalize helper =====
 const normalize = str => str.toLowerCase().replace(/[“”‘’]/g, '"').replace(/[^\x00-\x7F]/g, '');
 
 app.post('/checkLyrics', async (req, res) => {
@@ -90,14 +85,9 @@ app.post('/checkLyrics', async (req, res) => {
       if (err) console.error('Logging failed:', err);
     });
 
-    return res.json({
-      verdict: matchedResult.verdict,
-      confidence: matchedResult.confidence,
-      explanation: matchedResult.explanation
-});
+    return res.json(matchedResult); // ✅ fixed brace here
+  }
 
-
-  // ===== GPT fallback if no known song matched =====
   const prompt = `You are an expert lyrics analyst.
 
 Given the following lyrics, determine if they are:
@@ -105,12 +95,6 @@ A) From a published, recognizable human-written song
 B) Likely human-written but unpublished
 C) Possibly AI-generated
 D) Very likely AI-generated
-
-When deciding, consider the following:
-- Polished, poetic language does not guarantee human authorship.
-- Be cautious with lyrics that use vague or sentimental Americana themes (e.g., "amber hue", "front porch swing", "home collide").
-- If lyrics seem structurally sound but lack personal specificity, emotional nuance, or originality—despite appearing poetic—treat them as potentially AI-generated.
-- Flag patterns that seem stitched together, overly polished, or emotionally hollow.
 
 Respond in this JSON format:
 {
