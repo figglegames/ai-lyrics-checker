@@ -128,21 +128,27 @@ app.post('/checkLyrics', async (req, res) => {
 
   const prompt = `You are an expert lyrics analyst.
 
-Given the following lyrics, determine if they are:
-A) From a published, recognizable human-written song
-B) Likely human-written but unpublished
-C) Possibly AI-generated
-D) Very likely AI-generated
+Given the following lyrics, determine whether they are:
+- From a published, recognizable human-written song
+- Likely human-written but unpublished
+- Possibly AI-generated
+- Very likely AI-generated
 
-Respond in this JSON format:
+When deciding, consider the following:
+- Polished, poetic language does not guarantee human authorship
+- Be cautious with vague or sentimental Americana themes
+- If lyrics seem structurally sound but lack personal specificity, emotional nuance, or originality, they may be AI-generated
+
+Respond only with this exact JSON format:
 {
-  "verdict": "...",
-  "confidence": ...,
-  "explanation": "..."
+  "verdict": "...",     // One of: "Human-written", "Possibly human", "Possibly AI-generated", "Very likely AI-generated"
+  "confidence": 0–100,  // Confidence score
+  "explanation": "..."  // One brief reason
 }
 
 Lyrics:
 """${inputLyrics}"""`;
+
 
   try {
     const completion = await openai.createChatCompletion({
